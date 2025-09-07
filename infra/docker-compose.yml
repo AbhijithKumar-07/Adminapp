@@ -1,0 +1,98 @@
+services:
+  nginx:
+    image: "nginx:1.25"
+    container_name: nginx
+    init: true
+    restart: unless-stopped
+    depends_on:
+      express-app-admin-1:
+        condition: service_healthy
+      express-app-admin-2:
+        condition: service_healthy
+      express-app-admin-3:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/conf.d/app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_cache:/var/cache/nginx
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 10s
+    networks: [app-net]
+
+  express-app-admin-1:
+    image: nitheesh2005/admin-app:latest
+    container_name: express-app-admin-1
+    init: true
+    restart: unless-stopped
+    env_file: 
+      - .env
+    environment:
+      NODE_ENV: "production"
+      PORT: "5000"
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5000/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 10s
+    networks: [app-net]
+
+  express-app-admin-2:
+    image: nitheesh2005/admin-app:latest
+    container_name: express-app-admin-2
+    init: true
+    restart: unless-stopped
+    env_file: 
+      - .env
+    environment:
+      NODE_ENV: "production"
+      PORT: "5000"
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5000/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 10s
+    networks: [app-net]
+
+  express-app-admin-3:
+    image: nitheesh2005/admin-app:latest
+    container_name: express-app-admin-3
+    init: true
+    restart: unless-stopped
+    env_file: 
+      - .env
+    environment:
+      NODE_ENV: "production"
+      PORT: "5000"
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5000/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 10s
+    networks: [app-net]
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  nginx_cache: {}
